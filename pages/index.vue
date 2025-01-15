@@ -15,8 +15,8 @@
             <td>{{ post.id }}</td>
             <td>{{ post.title }}</td>
             <td>
-              <nuxt-link :to="`/posts/${post.id}`">View</nuxt-link>
-              <nuxt-link :to="`/posts/${post.id}/edit`">Edit</nuxt-link>
+              <button @click="goToPost(post.id)">View</button>
+              <button @click="goToEdit(post.id)">Edit</button>
               <button @click="deletePost(post.id)">Delete</button>
             </td>
           </tr>
@@ -42,5 +42,32 @@
     const { data } = await api.get('/posts');
     posts.value = data;
   });
+
+  
+// Fungsi untuk navigasi ke halaman post
+const goToPost = (id) => {
+  const router = useRouter();
+  router.push(`/posts/${id}`); // Pindah ke halaman View Post
+};
+
+// Fungsi untuk navigasi ke halaman edit post
+const goToEdit = (id) => {
+  const router = useRouter();
+  router.push(`/posts/${id}/edit`); // Pindah ke halaman Edit Post
+};
+
+// Fungsi untuk navigasi ke halaman Create Post
+const goToCreatePost = () => {
+  const router = useRouter();
+  router.push(`/posts/create`); // Pindah ke halaman Create Post
+};
+
+// Konfirmasi penghapusan
+const confirmDelete = (id) => {
+  const isConfirmed = window.confirm('Are you sure you want to delete this post?');
+  if (isConfirmed) {
+    deletePost(id);
+  }
+};
   </script>
   
