@@ -15,7 +15,7 @@
             <td>{{ post.id }}</td>
             <td>{{ post.title }}</td>
             <td>
-              <button @click="goToPost(post.id)">View</button>
+               <button @click="goToPost(post.id)">View</button>
               <button @click="goToEdit(post.id)">Edit</button>
               <button @click="deletePost(post.id)">Delete</button>
             </td>
