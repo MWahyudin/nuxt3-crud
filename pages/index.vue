@@ -17,6 +17,7 @@
             <td>
               <nuxt-link :to="`/posts/${post.id}`">View</nuxt-link>
               <nuxt-link :to="`/posts/${post.id}/edit`">Edit</nuxt-link>
+              <button @click="deletePost(post.id)">Delete</button>
             </td>
           </tr>
         </tbody>
@@ -29,6 +30,13 @@
   import api from '~/services/api';
   
   const posts = ref([]);
+
+  const deletePost = async (id) => {
+  await api.delete(`/posts/${id}`);
+  alert('Post Deleted!');
+  posts.value = posts.value.filter((post) => post.id !== id);
+};
+
   
   onMounted(async () => {
     const { data } = await api.get('/posts');
