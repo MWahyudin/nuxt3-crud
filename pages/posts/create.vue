@@ -1,15 +1,35 @@
 <template>
-    <div>
-      <h1>Create Post</h1>
-      <form @submit.prevent="createPost">
-        <label>Title:</label>
-        <input v-model="title" required />
-        <label>Body:</label>
-        <textarea v-model="body" required></textarea>
-        <button type="submit">Submit</button>
-      </form>
-    </div>
-  </template>
+  <div>
+    <h1>Create Post</h1>
+    <form @submit.prevent="createPost" class="form-horizontal">
+      <div class="form-group">
+        <label for="title" class="label">Title:</label>
+        <input
+          id="title"
+          v-model="title"
+          type="text"
+          placeholder="Enter title"
+          class="input-field"
+          required
+        />
+      </div>
+      
+      <div class="form-group">
+        <label for="body" class="label">Body:</label>
+        <textarea
+          id="body"
+          v-model="body"
+          placeholder="Enter body"
+          class="input-field"
+          required
+        ></textarea>
+      </div>
+      
+      <button type="submit" class="submit-btn">Submit</button>
+    </form>
+  </div>
+</template>
+
   
   <script setup>
   import { ref } from 'vue';
