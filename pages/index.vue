@@ -10,7 +10,7 @@
       </li>
     </ul>
     <p v-else>Belum ada gambar APOD favorit.</p>
-    <button @click="createApod">Tambah Gambar APOD Favorit</button>
+    <button @click="createApod" class="add-btn">Tambah Gambar APOD Favorit</button>
   </div>
 </template>
 
