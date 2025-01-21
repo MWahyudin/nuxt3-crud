@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Daftar Gambar APOD Favorit</h1>
-    <ul>
+    <ul v-if="apodList.length > 0">
       <li v-for="(apod, index) in apodList" :key="index">
         <img :src="apod.url" :alt="apod.title" width="200" />
         <p>{{ apod.title }}</p>
@@ -9,6 +9,7 @@
         <button @click="viewDetail(apod.date)">Lihat Detail</button>
       </li>
     </ul>
+    <p v-else>Belum ada gambar APOD favorit.</p>
     <button @click="createApod">Tambah Gambar APOD Favorit</button>
   </div>
 </template>
@@ -20,41 +21,49 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const apodList = ref([]);
 
+// Mengambil APOD favorit dari storage atau API
 const fetchApods = async () => {
-  // Ambil data APOD favorit dari storage atau API
   const storedApods = JSON.parse(localStorage.getItem('apodList')) || [];
   apodList.value = storedApods;
 };
 
+// Menambahkan gambar APOD favorit
 const createApod = async () => {
   const date = prompt("Masukkan tanggal (YYYY-MM-DD) untuk APOD:");
   if (date) {
-    const response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=${date}`);
-    const data = await response.json();
-    if (data) {
-      const newApod = {
-        date: date,
-        title: data.title,
-        url: data.url,
-        explanation: data.explanation,
-      };
-      apodList.value.push(newApod);
-      localStorage.setItem('apodList', JSON.stringify(apodList.value));
-    } else {
-      alert("Data tidak ditemukan!");
+    try {
+      const response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=${date}`);
+      const data = await response.json();
+      if (data && data.url) {
+        const newApod = {
+          date: date,
+          title: data.title,
+          url: data.url,
+          explanation: data.explanation,
+        };
+        apodList.value.push(newApod);
+        localStorage.setItem('apodList', JSON.stringify(apodList.value));
+      } else {
+        alert("Data tidak ditemukan atau format tidak valid.");
+      }
+    } catch (error) {
+      alert("Terjadi kesalahan saat mengambil data.");
+      console.error(error);
     }
   }
 };
 
+// Menghapus gambar APOD favorit
 const deleteApod = (index) => {
   apodList.value.splice(index, 1);
   localStorage.setItem('apodList', JSON.stringify(apodList.value));
 };
 
+// Menampilkan detail gambar berdasarkan tanggal
 const viewDetail = (date) => {
-  // Menggunakan router untuk menavigasi ke halaman detail berdasarkan tanggal
   router.push(`/apod/${date}`);
 };
 
 onMounted(fetchApods);
+
 </script>
