@@ -1,53 +1,42 @@
 <template>
   <div>
-    <h1>Edit Post</h1>
-    <form @submit.prevent="updatePost">
-      <label for="title">Title:</label>
-      <input id="title" v-model="title" required />
-
-      <label for="body">Body:</label>
-      <textarea id="body" v-model="body" required></textarea>
-
-      <button type="submit">Save</button>
+    <h1>Edit Fakta Angka</h1>
+    <form @submit.prevent="updateFact">
+      <label for="number">Angka:</label>
+      <input v-model="fact.number" id="number" type="number" required />
+      
+      <label for="text">Fakta:</label>
+      <textarea v-model="fact.text" id="text" required></textarea>
+      
+      <button type="submit">Update Fakta</button>
     </form>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import api from '~/services/api';
 import { useRoute, useRouter } from 'vue-router';
 
+const fact = ref({ number: '', text: '' });
 const route = useRoute();
 const router = useRouter();
-const title = ref('');
-const body = ref('');
-
-// Ambil ID dari query parameter
-const postId = route.query.id;
 
 onMounted(async () => {
-  if (postId) {
-    try {
-      const { data } = await api.get(`/posts/${postId}`);
-      title.value = data.title;
-      body.value = data.body;
-    } catch (error) {
-      console.error('Failed to fetch post data:', error);
-      alert('Error loading post details.');
-    }
-  }
+  await fetchFact();
 });
 
-// Fungsi untuk mengupdate post
-const updatePost = async () => {
-  try {
-    await api.put(`/posts/${postId}`, { title: title.value, body: body.value });
-    alert('Post Updated!');
-    router.push(`/posts/${postId}`);
-  } catch (error) {
-    console.error('Failed to update post:', error);
-    alert('Error updating post.');
-  }
+const fetchFact = async () => {
+  const number = route.params.id;
+  const res = await fetch(`http://numbersapi.com/${number}`);
+  const text = await res.text();
+  fact.value = { number, text };
+};
+
+const updateFact = async () => {
+  const res = await fetch(`http://numbersapi.com/${fact.value.number}`);
+  const text = await res.text();
+  fact.value.text = text; // Update fakta jika berhasil
+  alert('Fakta berhasil diperbarui!');
+  router.push(`/posts/${fact.value.number}`);
 };
 </script>
