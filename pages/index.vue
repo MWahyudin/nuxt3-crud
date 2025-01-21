@@ -7,7 +7,7 @@
         <p>{{ apod.title }}</p>
         <button @click="deleteApod(index)">Hapus</button>
         <button @click="viewDetail(apod.date)">Lihat Detail</button>
-      </li>
+      </li> 
     </ul>
     <p v-else>Belum ada gambar APOD favorit.</p>
     <button @click="createApod" class="add-btn">Tambah Gambar APOD Favorit</button>
