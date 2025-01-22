@@ -1,30 +1,44 @@
 <template>
   <div>
-    <h1>{{ post.title }}</h1>
-    <p>{{ post.body }}</p>
-    <h2>Comments</h2>
-    <div v-for="comment in comments" :key="comment.id">
-      <CommentItem :comment="comment" />
-    </div>
+    <h1>Fakta Angka</h1>
+    <p>{{ fact.number }}: {{ fact.text }}</p>
+    <button @click="deleteFact">Hapus Fakta</button>
+    <button @click="editFact">Edit Fakta</button>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import api from '~/services/api';
-import { useRoute } from 'vue-router';
-import CommentItem from '~/components/CommentItem.vue';
+import { useRoute, useRouter } from 'vue-router';
 
+const fact = ref({});
 const route = useRoute();
-const post = ref({});
-const comments = ref([]);
+const router = useRouter();
 
 onMounted(async () => {
-  const { data } = await api.get(`/posts/${route.params.id}`);
-  post.value = data;
-
-  const { data: commentsData } = await api.get(`/posts/${route.params.id}/comments`);
-  comments.value = commentsData;
-
+  await fetchFact();
 });
+
+const fetchFact = async () => {
+  const number = route.params.id;
+  const res = await fetch(`http://numbersapi.com/${number}`);
+  const text = await res.text();
+  fact.value = { number, text };
+};
+
+const editFact = async () => {
+  const newNumber = prompt('Masukkan angka baru untuk fakta:', fact.value.number);
+  if (newNumber) {
+    const res = await fetch(`http://numbersapi.com/${newNumber}`);
+    const text = await res.text();
+    fact.value = { number: newNumber, text };
+  }
+};
+
+const deleteFact = () => {
+  const confirmDelete = confirm('Apakah Anda yakin ingin menghapus fakta ini?');
+  if (confirmDelete) {
+    router.push('/'); // Redirect ke halaman utama setelah dihapus
+  }
+};
 </script>

@@ -1,71 +1,69 @@
 <template>
   <div>
-    <h1>Posts</h1>
-    <nuxt-link to="/posts/create">Create New Post</nuxt-link>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="post in posts" :key="post.id">
-          <td>{{ post.id }}</td>
-          <td>{{ post.title }}</td>
-          <td>
-            <button @click="goToPost(post.id)">View</button>
-            <button @click="goToEdit(post.id)">Edit</button>
-            <button @click="confirmDelete(post.id)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <h1>Daftar Gambar APOD Favorit</h1>
+    <ul v-if="apodList.length > 0">
+      <li v-for="(apod, index) in apodList" :key="index">
+        <img :src="apod.url" :alt="apod.title" width="200" />
+        <p>{{ apod.title }}</p>
+        <button @click="deleteApod(index)">Hapus</button>
+        <button @click="viewDetail(apod.date)">Lihat Detail</button>
+      </li> 
+    </ul>
+    <p v-else>Belum ada gambar APOD favorit.</p>
+    <button @click="createApod" class="add-btn">Tambah Gambar APOD Favorit</button>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import api from '~/services/api';
 import { useRouter } from 'vue-router';
 
-const posts = ref([]);
 const router = useRouter();
+const apodList = ref([]);
 
-// Ambil data post
-onMounted(async () => {
-  const { data } = await api.get('/posts');
-  posts.value = data;
-});
-
-// Fungsi navigasi ke halaman detail post
-const goToPost = (id) => {
-  router.push(`/posts/${id}`);
+// Mengambil APOD favorit dari storage atau API
+const fetchApods = async () => {
+  const storedApods = JSON.parse(localStorage.getItem('apodList')) || [];
+  apodList.value = storedApods;
 };
 
-// Fungsi navigasi ke halaman edit post
-const goToEdit = (id) => {
-  router.push(`/posts/edit?id=${id}`);
-};
-
-// Fungsi navigasi ke halaman create post
-const goToCreatePost = () => {
-  router.push(`/posts/create`);
-};
-
-// Fungsi untuk menghapus post
-const deletePost = async (id) => {
-  await api.delete(`/posts/${id}`);
-  alert('Post Deleted!');
-  posts.value = posts.value.filter((post) => post.id !== id);
-};
-
-// Konfirmasi penghapusan
-const confirmDelete = (id) => {
-  const isConfirmed = window.confirm('Are you sure you want to delete this post?');
-  if (isConfirmed) {
-    deletePost(id);
+// Menambahkan gambar APOD favorit
+const createApod = async () => {
+  const date = prompt("Masukkan tanggal (YYYY-MM-DD) untuk APOD:");
+  if (date) {
+    try {
+      const response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=${date}`);
+      const data = await response.json();
+      if (data && data.url) {
+        const newApod = {
+          date: date,
+          title: data.title,
+          url: data.url,
+          explanation: data.explanation,
+        };
+        apodList.value.push(newApod);
+        localStorage.setItem('apodList', JSON.stringify(apodList.value));
+      } else {
+        alert("Data tidak ditemukan atau format tidak valid.");
+      }
+    } catch (error) {
+      alert("Terjadi kesalahan saat mengambil data.");
+      console.error(error);
+    }
   }
 };
+
+// Menghapus gambar APOD favorit
+const deleteApod = (index) => {
+  apodList.value.splice(index, 1);
+  localStorage.setItem('apodList', JSON.stringify(apodList.value));
+};
+
+// Menampilkan detail gambar berdasarkan tanggal
+const viewDetail = (date) => {
+  router.push(`/apod/${date}`);
+};
+
+onMounted(fetchApods);
+
 </script>
